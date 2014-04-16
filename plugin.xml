@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="uk.co.aptosolutions.aptodeskew"
+    version="0.1">
+    <name>DocumentDeskew</name>
+    <description>Apto Document Deskew Plugin</description>
+    <license>Apache 2.0</license>
+    <keywords>Apto,Deskew</keywords>
+    <repo></repo>
+    <issue></issue>
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="DocumentDeskew" >
+                <param name="android-package" value="uk.co.aptosolutions.aptodeskew.DocumentDeskew"/>
+            </feature>
+        </config-file>
+        <js-module src="www/aptodeskew.js" name="aptodeskew">
+            <clobbers target="aptodeskew" />
+        </js-module>
+        <source-file src="libs/armeabi-v7a/libDocumentDeskew.so" target-dir="libs/armeabi-v7a" />
+        <source-file src="libs/armeabi-v7a/libgnustl_shared.so" target-dir="libs/armeabi-v7a" />
+        <source-file src="src/android/DocumentDeskew.java"
+            target-dir="src/uk/co/aptosolutions/aptodeskew" />
+    </platform>
+    <!-- END android-->
+</plugin>
