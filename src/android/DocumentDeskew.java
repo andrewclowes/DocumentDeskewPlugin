@@ -25,6 +25,7 @@ import android.app.Activity;
 import android.app.ActionBar.LayoutParams;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Environment;
@@ -61,6 +62,9 @@ public class DocumentDeskew extends CordovaPlugin {
 	private Activity mActivity;
 	private Context mContext;
 	
+	private String package_name;
+	private Resources resources;
+	
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(mContext) 
 	{
 	    @Override
@@ -92,7 +96,10 @@ public class DocumentDeskew extends CordovaPlugin {
 		
 	  	mActivity.getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		
-	  	mActivity.setContentView(R.layout.activity_deskew);
+	  	package_name = mActivity.getApplication().getPackageName();
+	  	resources = mActivity.getApplication().getResources();
+	  	
+	  	mActivity.setContentView(resources.getIdentifier("activity_deskew", "layout", package_name));
 		
 	  	Log.i(TAG, "Trying to load OpenCV library");
 	    if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_8, mActivity, mOpenCVCallBack))
@@ -100,7 +107,7 @@ public class DocumentDeskew extends CordovaPlugin {
 	      Log.e(TAG, "Cannot connect to OpenCV Manager");
 	    }
 	    
-	    image = (ImageView)mActivity.findViewById(R.id.deskewImage);
+	    image = (ImageView)mActivity.findViewById(resources.getIdentifier("deskewImage", "id", package_name));
 	    addListenerOnDeskewButton();
 	    addListenerOnRestartButton();
 	}
@@ -218,7 +225,7 @@ public class DocumentDeskew extends CordovaPlugin {
     					image.invalidate();
     					
     					deskewButton.setVisibility(View.VISIBLE);
-    					deskewButton.setText(R.string.deskew_text);
+    					deskewButton.setText("Deskew");
     				}
     				else
     				{
@@ -236,7 +243,7 @@ public class DocumentDeskew extends CordovaPlugin {
     
     public void addListenerOnDeskewButton() 
 	{		  
-		deskewButton = (Button)mActivity.findViewById(R.id.deskewButton);
+		deskewButton = (Button)mActivity.findViewById(resources.getIdentifier("deskewButton", "id", package_name));
 		deskewButton.setOnClickListener(new OnClickListener() 
 		{
 			@Override
@@ -250,7 +257,7 @@ public class DocumentDeskew extends CordovaPlugin {
 					image.setImageBitmap(resultBitmap);
 					image.invalidate();
 					
-					deskewButton.setText(R.string.edge_text);
+					deskewButton.setText("Edge");
 					
 					deskewFlag = 1;
 				}
@@ -262,7 +269,7 @@ public class DocumentDeskew extends CordovaPlugin {
 					image.setImageBitmap(resultBitmap);
 					image.invalidate();
 					
-					deskewButton.setText(R.string.deskew_text);
+					deskewButton.setText("Deskew");
 					
 					deskewFlag = 0;
 				}
@@ -272,7 +279,7 @@ public class DocumentDeskew extends CordovaPlugin {
     
 	public void addListenerOnRestartButton() 
 	{		  
-		restartButton = (Button)mActivity.findViewById(R.id.restartButton);
+		restartButton = (Button)mActivity.findViewById(resources.getIdentifier("restartButton", "id", package_name));
 		restartButton.setOnClickListener(new OnClickListener() 
 		{
 			@Override
