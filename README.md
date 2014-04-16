@@ -1,0 +1,4 @@
+DocumentDeskewPlugin
+====================
+
+Cordova plugin
