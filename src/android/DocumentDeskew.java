@@ -89,27 +89,37 @@ public class DocumentDeskew extends CordovaPlugin {
 	@Override
 	public void initialize(CordovaInterface cordova, CordovaWebView webView) {
 		
+		Log.i(TAG, "Initializing DocumentDeskew");
 		super.initialize(cordova, webView);
 	  
 	  	mActivity = this.cordova.getActivity();
 	  	mContext = mActivity.getApplicationContext();
-		
-	  	mActivity.getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-		
-	  	package_name = mActivity.getApplication().getPackageName();
+		package_name = mActivity.getApplication().getPackageName();
 	  	resources = mActivity.getApplication().getResources();
-	  	
-	  	mActivity.setContentView(resources.getIdentifier("activity_deskew", "layout", package_name));
+		
+		Log.i(TAG, "Setting up layout");
+		initView();
 		
 	  	Log.i(TAG, "Trying to load OpenCV library");
 	    if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_8, mActivity, mOpenCVCallBack))
 	    {
 	      Log.e(TAG, "Cannot connect to OpenCV Manager");
 	    }
-	    
-	    image = (ImageView)mActivity.findViewById(resources.getIdentifier("deskewImage", "id", package_name));
-	    addListenerOnDeskewButton();
-	    addListenerOnRestartButton();
+	}
+	
+	public void initView() {
+		Log.i(TAG, "DocumentDeskew initView");
+		mActivity.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mActivity.getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+				mActivity.setContentView(resources.getIdentifier("activity_deskew", "layout", package_name));
+				
+				image = (ImageView)mActivity.findViewById(resources.getIdentifier("deskewImage", "id", package_name));
+			    addListenerOnDeskewButton();
+			    addListenerOnRestartButton();
+			}
+		});
 	}
 	
 	@Override
@@ -122,6 +132,8 @@ public class DocumentDeskew extends CordovaPlugin {
 		input = null;
 		squareOutput = null;
 		deskewOutput = null;
+		
+		resources = null;
     }
 	
 	@Override
@@ -185,7 +197,7 @@ public class DocumentDeskew extends CordovaPlugin {
     @SuppressLint("SimpleDateFormat") 
     private void openCamera()
     {
-    	Log.i(TAG,"onTouch event");
+    	Log.i(TAG,"Opening camera");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         String currentDateandTime = sdf.format(new Date());
         String fileName = "DeskewPhoto_" + currentDateandTime + ".jpg";        
@@ -196,25 +208,31 @@ public class DocumentDeskew extends CordovaPlugin {
         imageUri = Uri.fromFile(photoFile);
         imageFileName = fileName;
         imageFilePath = photoFile.getAbsolutePath();
-        mActivity.startActivityForResult(intent, TAKE_PICTURE);
+        //mActivity.startActivityForResult(intent, TAKE_PICTURE);
+		
+		this.cordova.startActivityForResult((CordovaPlugin)this, intent, TAKE_PICTURE);
     }
     
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) 
     {
+		Log.i(TAG,"onActivityResult");
+	
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) 
         {
-            case TAKE_PICTURE:
+            case TAKE_PICTURE:			
                 if (resultCode == Activity.RESULT_OK) 
-                {        
+                {    
+					Log.i(TAG, "Photo OK");
+				
 	        	    input = new Mat();
 	        		squareOutput = new Mat();
 	        		deskewOutput = new Mat();
 	        		
 	        		deskewFlag = 0;
                 	
-                    photoToMat(input, imageUri);
+                    photoToMat(input, imageUri);					
                     deletePhoto(imageFilePath);
     				int i = deskewImage(input.getNativeObjAddr(), squareOutput.getNativeObjAddr(), deskewOutput.getNativeObjAddr(), 0.5f); 
     				
@@ -235,6 +253,8 @@ public class DocumentDeskew extends CordovaPlugin {
                 }
                 else if (resultCode == Activity.RESULT_CANCELED)
                 {
+					Log.i(TAG, "Photo Canceled");
+				
     				deletePhoto(imageFilePath);
     				openCamera();
                 }

@@ -13,12 +13,11 @@ var argscheck = require('cordova/argscheck'),
  * @constructor
  */
 
+var documentDeskew = {};
 
-var DocumentDeskew = {};
-
-DocumentDeskew.open =  function(successCallback, errorCallback, scale) {
-	var args = [scale];
+documentDeskew.open =  function(successCallback, errorCallback, scale) {
+	var args = [scale];	
     exec(successCallback, errorCallback, "DocumentDeskew", "open", args);
 };
 
-module.exports = DocumentDeskew;
+module.exports = documentDeskew;
