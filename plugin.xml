@@ -27,8 +27,36 @@
 		<source-file src="libs/opencv library - 2.4.8.jar" target-dir="libs" />
 		<source-file src="res/layout/activity_deskew.xml" target-dir="res/layout"/>
 		<source-file src="res/drawable/transparent_image.png" target-dir="res/drawable"/>
-        <source-file src="src/android/DocumentDeskew.java"
+        <source-file src="src/android/aptodeskew/DocumentDeskew.java"
             target-dir="src/uk/co/aptosolutions/aptodeskew" />
+		<source-file src="src/android/gestureimageview/Animation.java"
+            target-dir="src/com/polites/android" />
+		<source-file src="src/android/gestureimageview/Animator.java"
+            target-dir="src/com/polites/android" />
+		<source-file src="src/android/gestureimageview/FlingAnimation.java"
+            target-dir="src/com/polites/android" />
+		<source-file src="src/android/gestureimageview/FlingAnimationListener.java"
+            target-dir="src/com/polites/android" />
+		<source-file src="src/android/gestureimageview/FlingListener.java"
+            target-dir="src/com/polites/android" />
+		<source-file src="src/android/gestureimageview/GestureImageView.java"
+            target-dir="src/com/polites/android" />
+		<source-file src="src/android/gestureimageview/GestureImageViewListener.java"
+            target-dir="src/com/polites/android" />
+		<source-file src="src/android/gestureimageview/GestureImageViewTouchListener.java"
+            target-dir="src/com/polites/android" />
+		<source-file src="src/android/gestureimageview/MathUtils.java"
+            target-dir="src/com/polites/android" />
+		<source-file src="src/android/gestureimageview/MoveAnimation.java"
+            target-dir="src/com/polites/android" />
+		<source-file src="src/android/gestureimageview/MoveAnimationListener.java"
+            target-dir="src/com/polites/android" />
+		<source-file src="src/android/gestureimageview/VectorF.java"
+            target-dir="src/com/polites/android" />
+		<source-file src="src/android/gestureimageview/ZoomAnimation.java"
+            target-dir="src/com/polites/android" />
+		<source-file src="src/android/gestureimageview/ZoomAnimationListener.java"
+            target-dir="src/com/polites/android" />
     </platform>
     <!-- END android-->
 </plugin>

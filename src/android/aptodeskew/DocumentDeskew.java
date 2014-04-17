@@ -39,6 +39,8 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.polites.android.GestureImageView;
+
 public class DocumentDeskew extends CordovaPlugin {
 	
 	private static final String TAG = "DocumentDeskew";
@@ -51,7 +53,8 @@ public class DocumentDeskew extends CordovaPlugin {
 	Button deskewButton;
 	Button edgeButton;
 	Button restartButton;
-	ImageView image;
+	//ImageView image;
+	GestureImageView image;
 	
 	int deskewFlag;
 	
@@ -119,7 +122,8 @@ public class DocumentDeskew extends CordovaPlugin {
 				mActivity.getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 				mActivity.setContentView(resources.getIdentifier("activity_deskew", "layout", package_name));
 				
-				image = (ImageView)mActivity.findViewById(resources.getIdentifier("deskewImage", "id", package_name));
+				image = (GestureImageView)mActivity.findViewById(resources.getIdentifier("deskewImage", "id", package_name));
+				
 			    addListenerOnDeskewButton();
 			    addListenerOnRestartButton();
 			}
@@ -215,7 +219,7 @@ public class DocumentDeskew extends CordovaPlugin {
     	Log.i(TAG,"Opening camera");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
         String currentDateandTime = sdf.format(new Date());
-        String fileName = "DeskewPhoto_" + currentDateandTime + ".jpg";        
+        String fileName = "InputPhoto_" + currentDateandTime + ".jpg";
         Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
         File photoFile = new File(Environment.getExternalStorageDirectory(),  fileName);
         intent.putExtra(MediaStore.EXTRA_OUTPUT,
@@ -401,9 +405,14 @@ public class DocumentDeskew extends CordovaPlugin {
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		bm.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
 
+		// Create filename fo deskewed photo
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+        String currentDateandTime = sdf.format(new Date());
+        String fileName = "DeskewPhoto_" + currentDateandTime + ".jpg";
+		
 		//you can create a new file name "test.jpg" in sdcard folder.
 		File f = new File(Environment.getExternalStorageDirectory()
-		                        + File.separator + "test.jpg");
+		                        + File.separator + fileName);
 		try 
 		{
 			f.createNewFile();
