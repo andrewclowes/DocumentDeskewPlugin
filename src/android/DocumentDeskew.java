@@ -12,6 +12,7 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.opencv.android.BaseLoaderCallback;
@@ -27,6 +28,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -64,6 +66,8 @@ public class DocumentDeskew extends CordovaPlugin {
 	
 	private String package_name;
 	private Resources resources;
+	
+	float deskewScale = 0.0f;
 	
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(mContext) 
 	{
@@ -143,8 +147,19 @@ public class DocumentDeskew extends CordovaPlugin {
 		{
 		    if (action.equals("open")) 
 		    { 
-		        //JSONObject arg_object = args.getJSONObject(0);
 				Log.i(TAG, "DocumentDeskew open");
+				
+				if(args.length() > 0) 
+				{
+                    deskewScale = (float)args.getDouble(0);
+                    if(deskewScale == 0.0f) 
+					{
+                        PluginResult r = new PluginResult(PluginResult.Status.NO_RESULT, "No value provided for image processing scale factor.");
+                        callbackContext.sendPluginResult(r);
+                        return true;
+                    }
+                }
+				Log.i(TAG, "Deskew Scale Factor: " + deskewScale);
 
 			    openCamera();
 			    
@@ -232,9 +247,9 @@ public class DocumentDeskew extends CordovaPlugin {
 	        		
 	        		deskewFlag = 0;
                 	
-                    photoToMat(input, imageUri);					
-                    deletePhoto(imageFilePath);
-    				int i = deskewImage(input.getNativeObjAddr(), squareOutput.getNativeObjAddr(), deskewOutput.getNativeObjAddr(), 0.5f); 
+                    photoToMat(input, imageUri);
+                    //deletePhoto(imageFilePath);
+    				int i = deskewImage(input.getNativeObjAddr(), squareOutput.getNativeObjAddr(), deskewOutput.getNativeObjAddr(), /*0.5f*/0.25f); 
     				
     				if (i == 1)
     				{
@@ -334,6 +349,33 @@ public class DocumentDeskew extends CordovaPlugin {
 		try 
 		{
 			bitmap = MediaStore.Images.Media.getBitmap(mActivity.getContentResolver(), uri);
+			Utils.bitmapToMat(bitmap, imageMat);
+		} 
+		catch (FileNotFoundException e) 
+		{
+			e.printStackTrace();
+		} 
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	private void photoPathToMat(Mat imageMat, String photoPath)
+	{
+		Bitmap bitmap;
+		try 
+		{
+			File imgFile = new File(photoPath);
+            if(imgFile.exists())
+			{
+                bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+            }
+			else
+			{
+				throw new FileNotFoundException();
+			}
+			
 			Utils.bitmapToMat(bitmap, imageMat);
 		} 
 		catch (FileNotFoundException e) 
