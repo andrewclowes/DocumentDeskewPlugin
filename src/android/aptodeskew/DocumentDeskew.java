@@ -28,6 +28,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Environment;
@@ -107,11 +109,11 @@ public class DocumentDeskew extends CordovaPlugin {
 		Log.i(TAG, "Setting up layout");
 		initView();
 		
-	  	Log.i(TAG, "Trying to load OpenCV library");
-	    if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_8, mActivity, mOpenCVCallBack))
-	    {
-	      Log.e(TAG, "Cannot connect to OpenCV Manager");
-	    }
+//	  	Log.i(TAG, "Trying to load OpenCV library");
+//	    if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_8, mActivity, mOpenCVCallBack))
+//	    {
+//	      Log.e(TAG, "Cannot connect to OpenCV Manager");
+//	    }
 	}
 	
 	public void initView() {
@@ -186,9 +188,18 @@ public class DocumentDeskew extends CordovaPlugin {
 	{
 		try
 		{
-			System.loadLibrary("gnustl_shared");
-	        //To do - add your static code
-			Log.v(TAG, "Native code library gnustl_shared loaded.\n");
+			if (!OpenCVLoader.initDebug()) 
+			{
+				Log.e(TAG, "OpenCV native code libraries failed to load.\n");
+			} 
+			else 
+			{
+				System.loadLibrary("gnustl_shared");
+				System.loadLibrary("DocumentDeskew");
+			}
+		
+			//System.loadLibrary("gnustl_shared");
+			//Log.v(TAG, "Native code library gnustl_shared loaded.\n");
 	    }
 	    catch(UnsatisfiedLinkError e) 
 	    {
@@ -244,6 +255,17 @@ public class DocumentDeskew extends CordovaPlugin {
                 if (resultCode == Activity.RESULT_OK) 
                 {    
 					Log.i(TAG, "Photo OK");
+					
+					input = null;
+					squareOutput = null;
+					deskewOutput = null;
+					
+					Drawable drawable = image.getDrawable();
+	        		if (drawable instanceof BitmapDrawable) {
+	        		    BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+	        		    Bitmap bitmap = bitmapDrawable.getBitmap();
+	        		    bitmap.recycle();
+	        		}
 				
 	        	    input = new Mat();
 	        		squareOutput = new Mat();

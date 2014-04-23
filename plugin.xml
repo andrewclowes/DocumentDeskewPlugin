@@ -23,6 +23,16 @@
         </js-module>
         <source-file src="libs/armeabi-v7a/libDocumentDeskew.so" target-dir="libs/armeabi-v7a" />
         <source-file src="libs/armeabi-v7a/libgnustl_shared.so" target-dir="libs/armeabi-v7a" />
+		<source-file src="libs/armeabi-v7a/libnative_camera_r2.2.0.so" target-dir="libs/armeabi-v7a" />
+		<source-file src="libs/armeabi-v7a/libnative_camera_r2.3.3.so" target-dir="libs/armeabi-v7a" />
+		<source-file src="libs/armeabi-v7a/libnative_camera_r3.0.1.so" target-dir="libs/armeabi-v7a" />
+		<source-file src="libs/armeabi-v7a/libnative_camera_r4.0.0.so" target-dir="libs/armeabi-v7a" />
+		<source-file src="libs/armeabi-v7a/libnative_camera_r4.0.3.so" target-dir="libs/armeabi-v7a" />
+		<source-file src="libs/armeabi-v7a/libnative_camera_r4.1.1.so" target-dir="libs/armeabi-v7a" />
+		<source-file src="libs/armeabi-v7a/libnative_camera_r4.2.0.so" target-dir="libs/armeabi-v7a" />
+		<source-file src="libs/armeabi-v7a/libnative_camera_r4.3.0.so" target-dir="libs/armeabi-v7a" />
+		<source-file src="libs/armeabi-v7a/libnative_camera_r4.4.0.so" target-dir="libs/armeabi-v7a" />
+		<source-file src="libs/armeabi-v7a/libopencv_java.so" target-dir="libs/armeabi-v7a" />
 		<source-file src="libs/appcompat_v7.jar" target-dir="libs" />
 		<source-file src="libs/opencv library - 2.4.8.jar" target-dir="libs" />
 		<source-file src="res/layout/activity_deskew.xml" target-dir="res/layout"/>
