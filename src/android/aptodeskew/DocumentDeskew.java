@@ -31,14 +31,19 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.polites.android.GestureImageView;
@@ -55,8 +60,11 @@ public class DocumentDeskew extends CordovaPlugin {
 	Button deskewButton;
 	Button edgeButton;
 	Button restartButton;
+	Button okButton;
 	//ImageView image;
 	GestureImageView image;
+	
+	RelativeLayout pluginLayout;
 	
 	int deskewFlag;
 	
@@ -73,6 +81,10 @@ public class DocumentDeskew extends CordovaPlugin {
 	private Resources resources;
 	
 	float deskewScale = 0.0f;
+	
+	CordovaWebView myWebView;
+	
+	private CallbackContext callbackContext = null;
 	
 	private BaseLoaderCallback mOpenCVCallBack = new BaseLoaderCallback(mContext) 
 	{
@@ -106,8 +118,10 @@ public class DocumentDeskew extends CordovaPlugin {
 		package_name = mActivity.getApplication().getPackageName();
 	  	resources = mActivity.getApplication().getResources();
 		
+		myWebView = webView;
+		
 		Log.i(TAG, "Setting up layout");
-		initView();
+		//initView();
 		
 //	  	Log.i(TAG, "Trying to load OpenCV library");
 //	    if (!OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_8, mActivity, mOpenCVCallBack))
@@ -121,13 +135,38 @@ public class DocumentDeskew extends CordovaPlugin {
 		mActivity.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				mActivity.getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-				mActivity.setContentView(resources.getIdentifier("activity_deskew", "layout", package_name));
+			
+				//mActivity.getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);				
+				//mActivity.setContentView(resources.getIdentifier("activity_deskew", "layout", package_name));
 				
-				image = (GestureImageView)mActivity.findViewById(resources.getIdentifier("deskewImage", "id", package_name));
+				//pluginLayout = (RelativeLayout)mActivity.findViewById(resources.getIdentifier("pluginLayout", "id", package_name));
 				
+				//LayoutInflater vi = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				
+				//pluginLayout = (RelativeLayout)vi.inflate(resources.getIdentifier("pluginLayout", "id", package_name), null);
+				
+				//myWebView.addView(pluginLayout, 0, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.FILL_PARENT, ViewGroup.LayoutParams.FILL_PARENT));
+				
+				//image = (GestureImageView)mActivity.findViewById(resources.getIdentifier("deskewImage", "id", package_name));
+				
+				pluginLayout = new RelativeLayout(mContext);
+				pluginLayout.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT));
+				pluginLayout.setBackgroundColor(Color.parseColor("#000000"));
+				myWebView.addView(pluginLayout);
+				
+				image = new GestureImageView(mContext);
+				
+				RelativeLayout.LayoutParams iParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+				iParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+				iParams.addRule(RelativeLayout.CENTER_VERTICAL);
+				image.setLayoutParams(iParams);
+				
+				//myWebView.addView(image);
+				pluginLayout.addView(image);
+				
+				addListenerOnRestartButton();
 			    addListenerOnDeskewButton();
-			    addListenerOnRestartButton();
+				addListenerOnOkButton();
 			}
 		});
 	}
@@ -147,7 +186,7 @@ public class DocumentDeskew extends CordovaPlugin {
     }
 	
 	@Override
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException 
+    public boolean execute(String action, JSONArray args, CallbackContext callbackId) throws JSONException 
     {	
 		try 
 		{
@@ -155,13 +194,20 @@ public class DocumentDeskew extends CordovaPlugin {
 		    { 
 				Log.i(TAG, "DocumentDeskew open");
 				
+				this.callbackContext = callbackId;
+				PluginResult result = new PluginResult(PluginResult.Status.NO_RESULT);
+				result.setKeepCallback(true);
+				this.callbackContext.sendPluginResult(result);
+				
+				initView();
+				
 				if(args.length() > 0) 
 				{
                     deskewScale = (float)args.getDouble(0);
                     if(deskewScale == 0.0f) 
 					{
                         PluginResult r = new PluginResult(PluginResult.Status.NO_RESULT, "No value provided for image processing scale factor.");
-                        callbackContext.sendPluginResult(r);
+                        callbackId.sendPluginResult(r);
                         return true;
                     }
                 }
@@ -169,17 +215,17 @@ public class DocumentDeskew extends CordovaPlugin {
 
 			    openCamera();
 			    
-			    callbackContext.success();
+			    //callbackId.success();
 			    return true;
 		    }
 		    
-		    callbackContext.error("Invalid action");
+		    callbackId.error("Invalid action");
 		    return false;
 		} 
 		catch(Exception e) 
 		{
 		    System.err.println("Exception: " + e.getMessage());
-		    callbackContext.error(e.getMessage());
+		    callbackId.error(e.getMessage());
 		    return false;
 		} 
 	}
@@ -304,7 +350,22 @@ public class DocumentDeskew extends CordovaPlugin {
     
     public void addListenerOnDeskewButton() 
 	{		  
-		deskewButton = (Button)mActivity.findViewById(resources.getIdentifier("deskewButton", "id", package_name));
+		//deskewButton = (Button)mActivity.findViewById(resources.getIdentifier("deskewButton", "id", package_name));
+		
+		deskewButton = new Button(mContext);
+		
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(120, LayoutParams.WRAP_CONTENT);
+		//params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		params.addRule(RelativeLayout.LEFT_OF, restartButton.getId());
+		params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);	
+		params.setMargins(0, 50, 0, 0);		
+		deskewButton.setLayoutParams(params);
+		
+		deskewButton.setText("Deskew");	
+		deskewButton.setId(1000);
+		//myWebView.addView(deskewButton);		
+		pluginLayout.addView(deskewButton);
+		
 		deskewButton.setOnClickListener(new OnClickListener() 
 		{
 			@Override
@@ -340,7 +401,20 @@ public class DocumentDeskew extends CordovaPlugin {
     
 	public void addListenerOnRestartButton() 
 	{		  
-		restartButton = (Button)mActivity.findViewById(resources.getIdentifier("restartButton", "id", package_name));
+		//restartButton = (Button)mActivity.findViewById(resources.getIdentifier("restartButton", "id", package_name));
+		
+		restartButton = new Button(mContext);
+		
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(120, LayoutParams.WRAP_CONTENT);
+		params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);	
+		restartButton.setLayoutParams(params);
+		
+		restartButton.setText("Restart");	
+		restartButton.setId(2000);
+		//myWebView.addView(restartButton);
+		pluginLayout.addView(restartButton);
+		
 		restartButton.setOnClickListener(new OnClickListener() 
 		{
 			@Override
@@ -349,6 +423,62 @@ public class DocumentDeskew extends CordovaPlugin {
 				Log.i(TAG, "Restart pressed");
 				deletePhoto(imageFilePath);
 				openCamera();
+			}
+		});
+	}
+	
+	public void addListenerOnOkButton() 
+	{		  
+		//okButton = (Button)mActivity.findViewById(resources.getIdentifier("okButton", "id", package_name));
+		
+		okButton = new Button(mContext);
+		
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(120, LayoutParams.WRAP_CONTENT);
+		//params.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		params.addRule(RelativeLayout.RIGHT_OF, restartButton.getId());
+		params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);	
+		params.setMargins(0, 50, 0, 0);			
+		okButton.setLayoutParams(params);
+		
+		okButton.setText("Accept");
+		okButton.setId(3000);
+		//myWebView.addView(okButton);
+		pluginLayout.addView(okButton);
+		
+		okButton.setOnClickListener(new OnClickListener() 
+		{
+			@Override
+			public void onClick(View arg0) 
+			{
+				Log.i(TAG, "Accept pressed");
+				//hideLayout();
+				
+				Drawable drawable = image.getDrawable();
+	        	if (drawable instanceof BitmapDrawable) 
+				{
+	        		    BitmapDrawable bitmapDrawable = (BitmapDrawable) drawable;
+	        		    Bitmap bitmap = bitmapDrawable.getBitmap();
+	        		    bitmap.recycle();
+	        	}
+				
+				deletePhoto(imageFilePath);
+				
+				Bitmap output = matToBitmap(deskewOutput);
+				String outputPath = saveBitmap(output);
+				output.recycle();
+				
+				PluginResult result = new PluginResult(PluginResult.Status.OK, outputPath);
+
+				result.setKeepCallback(false);
+				if (callbackContext != null) 
+				{
+					Log.i(TAG, "Sent result: " + result.getMessage());
+					callbackContext.sendPluginResult(result);
+					//callbackContext.success(outputPath);
+					callbackContext = null;
+				}
+				
+				myWebView.removeView(pluginLayout);
 			}
 		});
 	}
@@ -422,7 +552,7 @@ public class DocumentDeskew extends CordovaPlugin {
 		return resultBitmap;
 	}
 	
-	private void saveBitmap(Bitmap bm)
+	private String saveBitmap(Bitmap bm)
 	{
 		ByteArrayOutputStream bytes = new ByteArrayOutputStream();
 		bm.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
@@ -433,8 +563,10 @@ public class DocumentDeskew extends CordovaPlugin {
         String fileName = "DeskewPhoto_" + currentDateandTime + ".jpg";
 		
 		//you can create a new file name "test.jpg" in sdcard folder.
-		File f = new File(Environment.getExternalStorageDirectory()
-		                        + File.separator + fileName);
+		String savePath = Environment.getExternalStorageDirectory()
+		                        + File.separator + fileName;
+		File f = new File(savePath);
+		
 		try 
 		{
 			f.createNewFile();
@@ -450,5 +582,41 @@ public class DocumentDeskew extends CordovaPlugin {
 		{
 			e.printStackTrace();
 		}
+		
+		return savePath;
+	}
+	
+	void hideLayout()
+	{
+		Log.i(TAG, "Hiding Layout");
+		mActivity.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				//image.setVisibility(View.GONE);
+				
+				//deskewButton.setVisibility(View.GONE);
+				//restartButton.setVisibility(View.GONE);
+				//okButton.setVisibility(View.GONE);
+				
+				pluginLayout.setVisibility(View.GONE);
+			}
+		});
+	}
+	
+	void showLayout()
+	{
+		Log.i(TAG, "Hiding Layout");
+		mActivity.runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				//image.setVisibility(View.VISIBLE);
+				
+				//deskewButton.setVisibility(View.VISIBLE);
+				//restartButton.setVisibility(View.VISIBLE);
+				//okButton.setVisibility(View.VISIBLE);
+				
+				pluginLayout.setVisibility(View.VISIBLE);
+			}
+		});
 	}
 }

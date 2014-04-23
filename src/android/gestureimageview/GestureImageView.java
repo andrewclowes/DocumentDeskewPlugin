@@ -397,9 +397,13 @@ public class GestureImageView extends ImageView  {
 			}
 		}
 		
+		layout = false;
+        startingScale = -1.0f;
+		
 		if(!layout) {
 			requestLayout();
-			redraw();
+			//redraw();
+			reset();
 		}
 	}
 
