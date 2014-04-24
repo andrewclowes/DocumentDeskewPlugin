@@ -566,6 +566,7 @@ public class DocumentDeskew extends CordovaPlugin {
 		String savePath = Environment.getExternalStorageDirectory()
 		                        + File.separator + fileName;
 		File f = new File(savePath);
+		Uri outputUri = Uri.fromFile(f);
 		
 		try 
 		{
@@ -583,7 +584,7 @@ public class DocumentDeskew extends CordovaPlugin {
 			e.printStackTrace();
 		}
 		
-		return savePath;
+		return outputUri.toString();
 	}
 	
 	void hideLayout()
